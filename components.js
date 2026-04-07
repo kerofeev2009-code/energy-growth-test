@@ -56,7 +56,7 @@ export const Header = ({ lang, onLangChange, onNavigate, currentPage, accessibil
           <div className="flex items-center gap-2">
             <button onClick={onToggleAccessibility} className="p-2 rounded-lg hover:bg-gray-100 transition" title={t('accessibility')}>♿</button>
             <button onClick={() => onLangChange(lang === 'ru' ? 'en' : 'ru')} className="px-3 py-1 rounded-lg bg-gray-100 text-sm font-medium hover:bg-gray-200 transition">
-              {lang === 'ru' ? '🇷 RU' : '🇧 EN'}
+              {lang === 'ru' ? '🇷🇺 RU' : '🇬 EN'}
             </button>
           </div>
         </div>
