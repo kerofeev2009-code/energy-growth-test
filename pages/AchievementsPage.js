@@ -1,10 +1,10 @@
-import React from 'react';
-import { Badge, Card } from '../components.jsx';
-import { storage } from '../utils/storage.js';
+import React from 'https://unpkg.com/react@18/umd/react.development.js';
+import { Badge, Card } from './components.js';
+import { storage } from './utils/storage.js';
 
 const AchievementsPage = ({ lang, t, badges, achievements, navigate }) => {
   const totalLessons = storage.getTotalCompleted();
-
+  
   return (
     <div className="max-w-4xl mx-auto px-4 py-8 animate-fade-in">
       <h1 className="text-3xl font-bold mb-2">{t('myAchievements')}</h1>
@@ -13,7 +13,16 @@ const AchievementsPage = ({ lang, t, badges, achievements, navigate }) => {
       <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
         {badges.map(badge => {
           const earned = achievements?.[badge.id];
-          return <Badge key={badge.id} icon={badge.icon} title={badge.title[lang]} desc={badge.desc[lang]} earned={earned} unlocked={!!earned} />;
+          return (
+            <Badge 
+              key={badge.id} 
+              icon={badge.icon} 
+              title={badge.title[lang]} 
+              desc={badge.desc[lang]} 
+              earned={earned} 
+              unlocked={!!earned} 
+            />
+          );
         })}
       </div>
 
