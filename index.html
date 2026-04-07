@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Энергия Роста — Образовательная Платформа</title>
   
-  <!-- 1. Подключаем Tailwind CSS -->
+  <!-- 1. Tailwind CSS -->
   <script src="https://cdn.tailwindcss.com"></script>
   <script>
     tailwind.config = {
@@ -20,12 +20,21 @@
     }
   </script>
 
-  <!-- 2. Подключаем React, ReactDOM и Babel (для работы JSX в браузере) -->
+  <!-- 2. React, ReactDOM и Babel (CDN) -->
   <script src="https://unpkg.com/react@18/umd/react.development.js" crossorigin></script>
   <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js" crossorigin></script>
   <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
 
-  <!-- Стили для анимаций и шрифтов -->
+  <!-- 3. Import Map (Решает ошибку "Failed to resolve module specifier") -->
+  <script type="importmap">
+  {
+    "imports": {
+      "react": "https://esm.sh/react@18.2.0",
+      "react-dom/client": "https://esm.sh/react-dom@18.2.0/client"
+    }
+  }
+  </script>
+
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
     body { font-family: 'Inter', sans-serif; }
@@ -42,16 +51,15 @@
 </head>
 <body class="bg-gray-50 min-h-screen">
   
-  <!-- Точка входа для React -->
+  <!-- Точка входа -->
   <div id="root"></div>
 
-  <!-- 3. Главный скрипт с настройкой Babel и модулей -->
+  <!-- 4. Главный скрипт приложения -->
   <script type="text/babel" data-type="module">
-    // === ИМПОРТЫ (Важно: указываем полные пути к CDN для React) ===
-    import React, { useState, useEffect, useCallback } from 'https://unpkg.com/react@18/umd/react.development.js';
-    import { createRoot } from 'https://unpkg.com/react-dom@18/umd/react-dom.development.js';
+    import React, { useState, useEffect, useCallback } from 'react';
+    import { createRoot } from 'react-dom/client';
     
-    // Импорты ваших файлов (относительные пути с точкой ./)
+    // Импорт ваших файлов (строго относительные пути)
     import { storage } from './utils/storage.js';
     import { coursesData, translations, badgesConfig } from './data.js';
     import { Header, Footer, Badge, ProgressBar, Card, AccessibilityPanel } from './components.js';
@@ -60,10 +68,9 @@
     import CoursesPage from './pages/CoursesPage.js';
     import CourseDetailPage from './pages/CourseDetailPage.js';
     import LessonPage from './pages/LessonPage.js';
-    import FinCoursePage from './pages/FinCoursePage.js'; // Внимание: имя файла должно совпадать!
+    import FinCoursePage from './pages/FinCoursePage.js'; // Важно: имя файла должно совпадать!
     import AchievementsPage from './pages/AchievementsPage.js';
 
-    // === ГЛАВНОЕ ПРИЛОЖЕНИЕ (App) ===
     const App = () => {
       const [currentPage, setCurrentPage] = useState('home');
       const [pageData, setPageData] = useState({});
@@ -73,17 +80,14 @@
       const [achievements, setAchievements] = useState(() => storage.get('achievements') || {});
       const [showAccessibility, setShowAccessibility] = useState(false);
 
-      // Сохранение настроек при изменении
       useEffect(() => { storage.set('lang', lang); }, [lang]);
       useEffect(() => { storage.set('accessibility', accessibility); }, [accessibility]);
       useEffect(() => { storage.set('progress', progress); }, [progress]);
       useEffect(() => { storage.set('achievements', achievements); }, [achievements]);
 
-      // Применение доступности
       useEffect(() => {
-        const body = document.body;
-        body.classList.toggle('high-contrast', accessibility.highContrast);
-        body.classList.toggle('large-font', accessibility.largeFont);
+        document.body.classList.toggle('high-contrast', accessibility.highContrast);
+        document.body.classList.toggle('large-font', accessibility.largeFont);
       }, [accessibility]);
 
       const t = useCallback((key) => translations[lang][key] || key, [lang]);
@@ -96,15 +100,12 @@
 
       const updateProgress = (courseId, lessonId, score) => {
         setProgress(prev => {
-          const courseProgress = prev[courseId] || { completedLessons: [], scores: {} };
+          const cp = prev[courseId] || { completedLessons: [], scores: {} };
           const updated = {
-            ...courseProgress,
-            completedLessons: courseProgress.completedLessons.includes(lessonId)
-              ? courseProgress.completedLessons
-              : [...courseProgress.completedLessons, lessonId],
-            scores: { ...courseProgress.scores, [lessonId]: score }
+            ...cp,
+            completedLessons: cp.completedLessons.includes(lessonId) ? cp.completedLessons : [...cp.completedLessons, lessonId],
+            scores: { ...cp.scores, [lessonId]: score }
           };
-          // Простая проверка достижения
           const totalCompleted = Object.values(prev).reduce((acc, c) => acc + c.completedLessons.length, 0) + updated.completedLessons.length;
           if (totalCompleted >= 5 && !achievements['first_milestone']) {
             setAchievements(a => ({ ...a, first_milestone: { date: new Date().toISOString(), unlocked: true } }));
@@ -113,54 +114,29 @@
         });
       };
 
-      // Рендеринг страницы в зависимости от состояния
       const renderPage = () => {
         const props = { navigate, lang, t, progress, achievements, updateProgress };
         switch (currentPage) {
-          case 'home': 
-            return <HomePage {...props} heroImage="https://images.unsplash.com/photo-1522202176988-66273c2fd55f?auto=format&fit=crop&w=800&q=80" />;
-          case 'courses': 
-            return <CoursesPage {...props} courses={coursesData} onSelectCourse={(c) => navigate('course-detail', { course: c })} />;
-          case 'course-detail': 
-            return <CourseDetailPage {...props} course={pageData.course} lessons={coursesData.find(c => c.id === pageData.course?.id)?.lessons || []} onSelectLesson={(l) => navigate('lesson', { lesson: l, course: pageData.course })} />;
-          case 'lesson': 
-            return <LessonPage {...props} lesson={pageData.lesson} course={pageData.course} onComplete={(score) => { updateProgress(pageData.course?.id, pageData.lesson?.id, score); navigate('fin-course', { lesson: pageData.lesson, course: pageData.course, score }); }} />;
-          case 'fin-course': 
-            return <FinCoursePage {...props} lesson={pageData.lesson} course={pageData.course} score={pageData.score} />;
-          case 'achievements': 
-            return <AchievementsPage {...props} badges={badgesConfig} />;
-          default: 
-            return <HomePage {...props} heroImage="https://images.unsplash.com/photo-1522202176988-66273c2fd55f?auto=format&fit=crop&w=800&q=80" />;
+          case 'home': return <HomePage {...props} heroImage="https://images.unsplash.com/photo-1522202176988-66273c2fd55f?auto=format&fit=crop&w=800&q=80" />;
+          case 'courses': return <CoursesPage {...props} courses={coursesData} onSelectCourse={(c) => navigate('course-detail', { course: c })} />;
+          case 'course-detail': return <CourseDetailPage {...props} course={pageData.course} lessons={coursesData.find(c => c.id === pageData.course?.id)?.lessons || []} onSelectLesson={(l) => navigate('lesson', { lesson: l, course: pageData.course })} />;
+          case 'lesson': return <LessonPage {...props} lesson={pageData.lesson} course={pageData.course} onComplete={(score) => { updateProgress(pageData.course?.id, pageData.lesson?.id, score); navigate('fin-course', { lesson: pageData.lesson, course: pageData.course, score }); }} />;
+          case 'fin-course': return <FinCoursePage {...props} lesson={pageData.lesson} course={pageData.course} score={pageData.score} />;
+          case 'achievements': return <AchievementsPage {...props} badges={badgesConfig} />;
+          default: return <HomePage {...props} heroImage="https://images.unsplash.com/photo-1522202176988-66273c2fd55f?auto=format&fit=crop&w=800&q=80" />;
         }
       };
 
       return (
         <div className="min-h-screen flex flex-col bg-gray-50">
-          <Header 
-            lang={lang} 
-            onLangChange={setLang} 
-            onNavigate={navigate} 
-            currentPage={currentPage} 
-            accessibility={accessibility} 
-            onToggleAccessibility={() => setShowAccessibility(!showAccessibility)} 
-            t={t} 
-            progress={progress} 
-          />
-          
-          {showAccessibility && (
-            <AccessibilityPanel settings={accessibility} onChange={setAccessibility} onClose={() => setShowAccessibility(false)} t={t} />
-          )}
-          
-          <main className="flex-1">
-            {renderPage()}
-          </main>
-          
+          <Header lang={lang} onLangChange={setLang} onNavigate={navigate} currentPage={currentPage} accessibility={accessibility} onToggleAccessibility={() => setShowAccessibility(!showAccessibility)} t={t} progress={progress} />
+          {showAccessibility && <AccessibilityPanel settings={accessibility} onChange={setAccessibility} onClose={() => setShowAccessibility(false)} t={t} />}
+          <main className="flex-1">{renderPage()}</main>
           <Footer lang={lang} t={t} />
         </div>
       );
     };
 
-    // === ЗАПУСК ПРИЛОЖЕНИЯ ===
     const root = createRoot(document.getElementById('root'));
     root.render(<App />);
   </script>
