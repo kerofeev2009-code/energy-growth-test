@@ -1,5 +1,5 @@
-import React from 'react';
-import { Card } from '../components.jsx';
+import React from 'https://unpkg.com/react@18/umd/react.development.js';
+import { Card } from './components.js';
 
 const FinCoursePage = ({ lang, t, lesson, course, score, navigate }) => {
   const grade = score >= 80 ? t('excellent') : score >= 50 ? t('good') : t('tryAgain');
