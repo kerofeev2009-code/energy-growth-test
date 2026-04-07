@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Энергия Роста — Образовательная Платформа</title>
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            primary: { 50: '#eff6ff', 100: '#dbeafe', 200: '#bfdbfe', 300: '#93c5fd', 400: '#60a5fa', 500: '#3b82f6', 600: '#2563eb', 700: '#1d4ed8', 800: '#1e40af', 900: '#1e3a8a' },
+            accent: { 50: '#f0fdf4', 100: '#dcfce7', 200: '#bbf7d0', 300: '#86efac', 400: '#4ade80', 500: '#22c55e', 600: '#16a34a', 700: '#15803d' },
+            highContrast: '#FFD700'
+          }
+        }
+      }
+    }
+  </script>
+  <!-- React + ReactDOM -->
+  <script src="https://unpkg.com/react@18/umd/react.development.js" crossorigin></script>
+  <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js" crossorigin></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+  <style>
+    @import url('https://fontsource.org/inter');
+    body { font-family: 'Inter', sans-serif; }
+    .high-contrast { background-color: #000 !important; color: #fff !important; }
+    .high-contrast * { color: #fff !important; border-color: #FFD700 !important; }
+    .high-contrast button { background-color: #FFD700 !important; color: #000 !important; }
+    .large-font { font-size: 1.25rem !important; }
+    .large-font h1 { font-size: 2.5rem !important; }
+    .large-font h2 { font-size: 2rem !important; }
+    .large-font p { font-size: 1.25rem !important; }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+    .animate-fade-in { animation: fadeIn 0.4s ease-out; }
+    @keyframes pulse-glow { 0%, 100% { box-shadow: 0 0 8px rgba(59,130,246,0.3); } 50% { box-shadow: 0 0 20px rgba(59,130,246,0.6); } }
+    .pulse-glow { animation: pulse-glow 2s infinite; }
+    ::-webkit-scrollbar { width: 8px; }
+    ::-webkit-scrollbar-track { background: #f1f5f9; }
+    ::-webkit-scrollbar-thumb { background: #94a3b8; border-radius: 4px; }
+  </style>
+</head>
+<body class="bg-gray-50 min-h-screen">
+  <div id="root"></div>
+
+  <!-- ES Modules (требуют локальный сервер) -->
+  <script type="importmap">
+  {
+    "imports": {
+      "react": "https://unpkg.com/react@18/esm/react.development.js",
+      "react-dom": "https://unpkg.com/react-dom@18/esm/react-dom.development.js"
+    }
+  }
+  </script>
+  <script type="text/babel" data-type="module" data-presets="react">
+    import React, { useState, useEffect, useCallback } from 'react';
+    import { createRoot } from 'react-dom/client';
+    import { storage } from './utils/storage.js';
+    import { coursesData, translations, badgesConfig } from './data.js';
+    import { Header, Footer, Badge, ProgressBar, Card, Modal, AccessibilityPanel } from './components.js';
+    import HomePage from './pages/HomePage.js';
+    import CoursesPage from './pages/CoursesPage.js';
+    import CourseDetailPage from './pages/CourseDetailPage.js';
+    import LessonPage from './pages/LessonPage.js';
+    import FinCoursePage from './pages/FinCoursePage.js';
+    import AchievementsPage from './pages/AchievementsPage.js';
+
+    // ===== ГЛАВНОЕ ПРИЛОЖЕНИЕ =====
+    const App = () => {
+      const [currentPage, setCurrentPage] = useState('home');
+      const [selectedCourse, setSelectedCourse] = useState(null);
+      const [selectedLesson, setSelectedLesson] = useState(null);
+      const [pageData, setPageData] = useState({});
+      const [lang, setLang] = useState(() => storage.get('lang') || 'ru');
+      const [accessibility, setAccessibility] = useState(() => storage.get('accessibility') || { highContrast: false, largeFont: false });
+      const [progress, setProgress] = useState(() => storage.get('progress') || {});
+      const [achievements, setAchievements] = useState(() => storage.get('achievements') || {});
+      const [showAccessibility, setShowAccessibility] = useState(false);
+
+      // Сохранение настроек
+      useEffect(() => { storage.set('lang', lang); }, [lang]);
+      useEffect(() => { storage.set('accessibility', accessibility); }, [accessibility]);
+      useEffect(() => { storage.set('progress', progress); }, [progress]);
+      useEffect(() => { storage.set('achievements', achievements); }, [achievements]);
+
+      // Применение настроек доступности
+      useEffect(() => {
+        const body = document.body;
+        body.classList.toggle('high-contrast', accessibility.highContrast);
+        body.classList.toggle('large-font', accessibility.largeFont);
+      }, [accessibility]);
+
+      const t = useCallback((key) => translations[lang][key] || key, [lang]);
+
+      const navigate = (page, data = {}) => {
+        setCurrentPage(page);
+        setPageData(data);
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      };
+
+      const updateProgress = (courseId, lessonId, score) => {
+        setProgress(prev => {
+          const courseProgress = prev[courseId] || { completedLessons: [], scores: {} };
+          const updated = {
+            ...courseProgress,
+            completedLessons: courseProgress.completedLessons.includes(lessonId)
+              ? courseProgress.completedLessons
+              : [...courseProgress.completedLessons, lessonId],
+            scores: { ...courseProgress.scores, [lessonId]: score }
+          };
+          // Проверка достижений
+          const totalCompleted = Object.values(prev).reduce((acc, c) => acc + c.completedLessons.length, 0) + updated.completedLessons.length;
+          if (totalCompleted >= 5 && !achievements['first_milestone']) {
+            setAchievements(a => ({ ...a, first_milestone: { date: new Date().toISOString(), unlocked: true } }));
+          }
+          return { ...prev, [courseId]: updated };
+        });
+      };
+
+      const renderPage = () => {
+        const props = { navigate, lang, t, progress, achievements, updateProgress };
+        switch (currentPage) {
+          case 'home': return <HomePage {...props} heroImage="https://image.qwenlm.ai/public_source/fc193377-47b3-434f-bccf-831b352fb938/12f6a5175-79b8-4956-83be-7b279053b4b0.png" />;
+          case 'courses': return <CoursesPage {...props} courses={coursesData} onSelectCourse={(c) => { setSelectedCourse(c); navigate('course-detail', { course: c }); }} />;
+          case 'course-detail': return <CourseDetailPage {...props} course={pageData.course} lessons={coursesData.find(c => c.id === pageData.course?.id)?.lessons || []} onSelectLesson={(l) => { setSelectedLesson(l); navigate('lesson', { lesson: l }); }} />;
+          case 'lesson': return <LessonPage {...props} lesson={pageData.lesson} course={pageData.course} onComplete={(score) => { updateProgress(pageData.course?.id, pageData.lesson?.id, score); navigate('fin-course', { lesson: pageData.lesson, course: pageData.course, score }); }} />;
+          case 'fin-course': return <FinCoursePage {...props} lesson={pageData.lesson} course={pageData.course} score={pageData.score} />;
+          case 'achievements': return <AchievementsPage {...props} badges={badgesConfig} />;
+          default: return <HomePage {...props} heroImage="https://image.qwenlm.ai/public_source/fc193377-47b3-434f-bccf-831b352fb938/12f6a5175-79b8-4956-83be-7b279053b4b0.png" />;
+        }
+      };
+
+      return (
+        <div className="min-h-screen flex flex-col bg-gray-50">
+          <Header
+            lang={lang}
+            onLangChange={setLang}
+            onNavigate={navigate}
+            currentPage={currentPage}
+            accessibility={accessibility}
+            onToggleAccessibility={() => setShowAccessibility(!showAccessibility)}
+            t={t}
+            progress={progress}
+          />
+          {showAccessibility && <AccessibilityPanel settings={accessibility} onChange={setAccessibility} onClose={() => setShowAccessibility(false)} t={t} />}
+          <main className="flex-1">
+            {renderPage()}
+          </main>
+          <Footer lang={lang} t={t} />
+        </div>
+      );
+    };
+
+    const root = createRoot(document.getElementById('root'));
+    root.render(<App />);
+  </script>
+</body>
+</html>
