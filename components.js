@@ -1,19 +1,14 @@
+// components.js
 import React from 'https://unpkg.com/react@18/umd/react.development.js';
 
-export const ProgressBar = ({ current, total, isAccessible }) => {
-  const percentage = total > 0 ? Math.round((current / total) * 100) : 0;
+export const ProgressBar = ({ value, max, color = 'primary', size = 'md' }) => {
+  const percent = max > 0 ? Math.min((value / max) * 100, 100) : 0;
+  const height = size === 'sm' ? 'h-2' : size === 'lg' ? 'h-4' : 'h-3';
+  const colors = { primary: 'bg-primary-500', accent: 'bg-accent-500', yellow: 'bg-yellow-500' };
+  
   return (
-    <div>
-      <div className="flex justify-between text-sm mb-1">
-        <span>Прогресс</span>
-        <span>{percentage}%</span>
-      </div>
-      <div className={`h-4 rounded-full overflow-hidden ${isAccessible ? 'bg-white border-2 border-white' : 'bg-slate-200'}`}>
-        <div 
-          className="h-full bg-gradient-to-r from-indigo-500 to-emerald-500 rounded-full transition-all duration-500" 
-          style={{ width: `${percentage}%` }} 
-        />
-      </div>
+    <div className={`w-full bg-gray-200 rounded-full ${height} overflow-hidden`}>
+      <div className={`${height} ${colors[color]} rounded-full transition-all duration-700`} style={{ width: `${percent}%` }} />
     </div>
   );
 };
@@ -38,6 +33,7 @@ export const Badge = ({ icon, title, desc, unlocked, earned }) => (
 
 export const Header = ({ lang, onLangChange, onNavigate, currentPage, accessibility, onToggleAccessibility, t, progress }) => {
   const totalLessons = Object.values(progress || {}).reduce((a, c) => a + (c.completedLessons?.length || 0), 0);
+  
   return (
     <header className="bg-white shadow-sm border-b border-gray-200 sticky top-0 z-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -60,7 +56,7 @@ export const Header = ({ lang, onLangChange, onNavigate, currentPage, accessibil
           <div className="flex items-center gap-2">
             <button onClick={onToggleAccessibility} className="p-2 rounded-lg hover:bg-gray-100 transition" title={t('accessibility')}>♿</button>
             <button onClick={() => onLangChange(lang === 'ru' ? 'en' : 'ru')} className="px-3 py-1 rounded-lg bg-gray-100 text-sm font-medium hover:bg-gray-200 transition">
-              {lang === 'ru' ? '🇷🇺 RU' : '🇬🇧 EN'}
+              {lang === 'ru' ? '🇷 RU' : '🇧 EN'}
             </button>
           </div>
         </div>
