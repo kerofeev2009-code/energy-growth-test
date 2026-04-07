@@ -1,144 +1,164 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Энергия Роста — Образовательная Платформа</title>
-  
-  <!-- 1. Tailwind CSS -->
-  <script src="https://cdn.tailwindcss.com"></script>
-  <script>
-    tailwind.config = {
-      theme: {
-        extend: {
-          colors: {
-            primary: { 50: '#eff6ff', 100: '#dbeafe', 200: '#bfdbfe', 300: '#93c5fd', 400: '#60a5fa', 500: '#3b82f6', 600: '#2563eb', 700: '#1d4ed8', 800: '#1e40af', 900: '#1e3a8a' },
-            accent: { 50: '#f0fdf4', 100: '#dcfce7', 200: '#bbf7d0', 300: '#86efac', 400: '#4ade80', 500: '#22c55e', 600: '#16a34a', 700: '#15803d' }
-          }
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Энергия Роста — Образовательная платформа</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
         }
-      }
-    }
-  </script>
-
-  <!-- 2. React, ReactDOM и Babel (CDN) -->
-  <script src="https://unpkg.com/react@18/umd/react.development.js" crossorigin></script>
-  <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js" crossorigin></script>
-  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
-
-  <!-- 3. Import Map (Решает ошибку "Failed to resolve module specifier") -->
-  <script type="importmap">
-  {
-    "imports": {
-      "react": "https://esm.sh/react@18.2.0",
-      "react-dom/client": "https://esm.sh/react-dom@18.2.0/client"
-    }
-  }
-  </script>
-
-  <style>
-    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
-    body { font-family: 'Inter', sans-serif; }
-    .high-contrast { background-color: #000 !important; color: #fff !important; }
-    .high-contrast * { color: #fff !important; border-color: #FFD700 !important; }
-    .high-contrast button { background-color: #FFD700 !important; color: #000 !important; }
-    .large-font { font-size: 1.25rem !important; }
-    .large-font h1 { font-size: 2.5rem !important; }
-    .large-font h2 { font-size: 2rem !important; }
-    .large-font p { font-size: 1.25rem !important; }
-    @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-    .animate-fade-in { animation: fadeIn 0.4s ease-out; }
-  </style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1a1a2e, #16213e);
+            color: #e0e0e0;
+            line-height: 1.6;
+            min-height: 100vh;
+        }
+        .container {
+            max-width: 1100px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        header {
+            text-align: center;
+            padding: 60px 20px 40px;
+        }
+        h1 {
+            font-size: 3.2rem;
+            margin-bottom: 10px;
+            background: linear-gradient(90deg, #00ff9d, #00b8ff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .subtitle {
+            font-size: 1.4rem;
+            opacity: 0.9;
+        }
+        nav {
+            background: rgba(255,255,255,0.08);
+            backdrop-filter: blur(10px);
+            padding: 15px;
+            border-radius: 12px;
+            margin-bottom: 40px;
+            text-align: center;
+        }
+        nav a {
+            color: #fff;
+            text-decoration: none;
+            margin: 0 15px;
+            font-weight: 500;
+            transition: all 0.3s;
+        }
+        nav a:hover {
+            color: #00ff9d;
+            transform: translateY(-2px);
+        }
+        .section {
+            background: rgba(255,255,255,0.05);
+            border-radius: 16px;
+            padding: 40px;
+            margin-bottom: 30px;
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+        .cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 20px;
+            margin-top: 30px;
+        }
+        .card {
+            background: rgba(255,255,255,0.07);
+            border-radius: 12px;
+            padding: 25px;
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+        .card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 15px 30px rgba(0, 255, 157, 0.15);
+        }
+        .card h3 {
+            color: #00ff9d;
+            margin-bottom: 15px;
+        }
+        footer {
+            text-align: center;
+            padding: 40px 20px;
+            opacity: 0.7;
+            font-size: 0.95rem;
+        }
+        button {
+            background: #00ff9d;
+            color: #0f1629;
+            border: none;
+            padding: 12px 28px;
+            border-radius: 50px;
+            font-weight: bold;
+            cursor: pointer;
+            margin-top: 15px;
+            transition: all 0.3s;
+        }
+        button:hover {
+            background: #00cc7a;
+            transform: scale(1.05);
+        }
+    </style>
 </head>
-<body class="bg-gray-50 min-h-screen">
-  
-  <!-- Точка входа -->
-  <div id="root"></div>
+<body>
+    <div class="container">
+        <header>
+            <h1>Энергия Роста</h1>
+            <p class="subtitle">Образовательная платформа для твоего развития</p>
+        </header>
 
-  <!-- 4. Главный скрипт приложения -->
-  <script type="text/babel" data-type="module">
-    import React, { useState, useEffect, useCallback } from 'react';
-    import { createRoot } from 'react-dom/client';
-    
-    // Импорт ваших файлов (строго относительные пути)
-    import { storage } from './utils/storage.js';
-    import { coursesData, translations, badgesConfig } from './data.js';
-    import { Header, Footer, Badge, ProgressBar, Card, AccessibilityPanel } from './components.js';
-    
-    import HomePage from './pages/HomePage.js';
-    import CoursesPage from './pages/CoursesPage.js';
-    import CourseDetailPage from './pages/CourseDetailPage.js';
-    import LessonPage from './pages/LessonPage.js';
-    import FinCoursePage from './pages/FinCoursePage.js'; // Важно: имя файла должно совпадать!
-    import AchievementsPage from './pages/AchievementsPage.js';
+        <nav>
+            <a href="#">Главная</a>
+            <a href="#">Курсы</a>
+            <a href="#">Уроки</a>
+            <a href="#">Достижения</a>
+            <a href="#">О проекте</a>
+        </nav>
 
-    const App = () => {
-      const [currentPage, setCurrentPage] = useState('home');
-      const [pageData, setPageData] = useState({});
-      const [lang, setLang] = useState(() => storage.get('lang') || 'ru');
-      const [accessibility, setAccessibility] = useState(() => storage.get('accessibility') || { highContrast: false, largeFont: false });
-      const [progress, setProgress] = useState(() => storage.get('progress') || {});
-      const [achievements, setAchievements] = useState(() => storage.get('achievements') || {});
-      const [showAccessibility, setShowAccessibility] = useState(false);
-
-      useEffect(() => { storage.set('lang', lang); }, [lang]);
-      useEffect(() => { storage.set('accessibility', accessibility); }, [accessibility]);
-      useEffect(() => { storage.set('progress', progress); }, [progress]);
-      useEffect(() => { storage.set('achievements', achievements); }, [achievements]);
-
-      useEffect(() => {
-        document.body.classList.toggle('high-contrast', accessibility.highContrast);
-        document.body.classList.toggle('large-font', accessibility.largeFont);
-      }, [accessibility]);
-
-      const t = useCallback((key) => translations[lang][key] || key, [lang]);
-
-      const navigate = (page, data = {}) => {
-        setCurrentPage(page);
-        setPageData(data);
-        window.scrollTo({ top: 0, behavior: 'smooth' });
-      };
-
-      const updateProgress = (courseId, lessonId, score) => {
-        setProgress(prev => {
-          const cp = prev[courseId] || { completedLessons: [], scores: {} };
-          const updated = {
-            ...cp,
-            completedLessons: cp.completedLessons.includes(lessonId) ? cp.completedLessons : [...cp.completedLessons, lessonId],
-            scores: { ...cp.scores, [lessonId]: score }
-          };
-          const totalCompleted = Object.values(prev).reduce((acc, c) => acc + c.completedLessons.length, 0) + updated.completedLessons.length;
-          if (totalCompleted >= 5 && !achievements['first_milestone']) {
-            setAchievements(a => ({ ...a, first_milestone: { date: new Date().toISOString(), unlocked: true } }));
-          }
-          return { ...prev, [courseId]: updated };
-        });
-      };
-
-      const renderPage = () => {
-        const props = { navigate, lang, t, progress, achievements, updateProgress };
-        switch (currentPage) {
-          case 'home': return <HomePage {...props} heroImage="https://images.unsplash.com/photo-1522202176988-66273c2fd55f?auto=format&fit=crop&w=800&q=80" />;
-          case 'courses': return <CoursesPage {...props} courses={coursesData} onSelectCourse={(c) => navigate('course-detail', { course: c })} />;
-          case 'course-detail': return <CourseDetailPage {...props} course={pageData.course} lessons={coursesData.find(c => c.id === pageData.course?.id)?.lessons || []} onSelectLesson={(l) => navigate('lesson', { lesson: l, course: pageData.course })} />;
-          case 'lesson': return <LessonPage {...props} lesson={pageData.lesson} course={pageData.course} onComplete={(score) => { updateProgress(pageData.course?.id, pageData.lesson?.id, score); navigate('fin-course', { lesson: pageData.lesson, course: pageData.course, score }); }} />;
-          case 'fin-course': return <FinCoursePage {...props} lesson={pageData.lesson} course={pageData.course} score={pageData.score} />;
-          case 'achievements': return <AchievementsPage {...props} badges={badgesConfig} />;
-          default: return <HomePage {...props} heroImage="https://images.unsplash.com/photo-1522202176988-66273c2fd55f?auto=format&fit=crop&w=800&q=80" />;
-        }
-      };
-
-      return (
-        <div className="min-h-screen flex flex-col bg-gray-50">
-          <Header lang={lang} onLangChange={setLang} onNavigate={navigate} currentPage={currentPage} accessibility={accessibility} onToggleAccessibility={() => setShowAccessibility(!showAccessibility)} t={t} progress={progress} />
-          {showAccessibility && <AccessibilityPanel settings={accessibility} onChange={setAccessibility} onClose={() => setShowAccessibility(false)} t={t} />}
-          <main className="flex-1">{renderPage()}</main>
-          <Footer lang={lang} t={t} />
+        <div class="section">
+            <h2>Добро пожаловать!</h2>
+            <p>Здесь ты найдёшь качественные курсы и уроки, которые помогут тебе расти в разных направлениях: саморазвитие, навыки, знания и энергия.</p>
+            
+            <div class="cards">
+                <div class="card">
+                    <h3>📚 Курсы</h3>
+                    <p>Структурированные программы обучения с практическими заданиями.</p>
+                    <button onclick="alert('Раздел Курсы в разработке')">Перейти к курсам</button>
+                </div>
+19:43
+<div class="card">
+                    <h3>🎯  Уроки</h3>
+                    <p>Короткие и ёмкие уроки по важным темам. Учись в удобном темпе.</p>
+                    <button onclick="alert('Раздел Уроки в разработке')">Начать уроки</button>
+                </div>
+                <div class="card">
+                    <h3>🏆 Достижения</h3>
+                    <p>Отслеживай свой прогресс и получай награды за выполненные задания.</p>
+                    <button onclick="alert('Раздел Достижения в разработке')">Мои достижения</button>
+                </div>
+            </div>
         </div>
-      );
-    };
 
-    const root = createRoot(document.getElementById('root'));
-    root.render(<App />);
-  </script>
+        <div class="section">
+            <h2>Почему выбирают нас?</h2>
+            <ul style="margin-left: 20px; margin-top: 15px;">
+                <li>✅ Практические знания, которые можно сразу применять</li>
+                <li>✅ Удобный формат обучения</li>
+                <li>✅ Система прогресса и мотивации</li>
+                <li>✅ Регулярное обновление материалов</li>
+            </ul>
+        </div>
+    </div>
+
+    <footer>
+        <p>&copy; 2026 Энергия Роста. Все права защищены.</p>
+        <p>Сделано с ❤️  для твоего роста</p>
+    </footer>
 </body>
 </html>
