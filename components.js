@@ -1,18 +1,28 @@
 import React from 'https://unpkg.com/react@18/umd/react.development.js';
 
-export const ProgressBar = ({ value, max, color = 'primary', size = 'md' }) => {
-  const percent = max > 0 ? Math.min((value / max) * 100, 100) : 0;
-  const height = size === 'sm' ? 'h-2' : size === 'lg' ? 'h-4' : 'h-3';
-  const colors = { primary: 'bg-primary-500', accent: 'bg-accent-500', yellow: 'bg-yellow-500' };
+export const ProgressBar = ({ current, total, isAccessible }) => {
+  const percentage = total > 0 ? Math.round((current / total) * 100) : 0;
   return (
-    <div className={`w-full bg-gray-200 rounded-full ${height} overflow-hidden`}>
-      <div className={`${height} ${colors[color]} rounded-full transition-all duration-700`} style={{ width: `${percent}%` }} />
+    <div>
+      <div className="flex justify-between text-sm mb-1">
+        <span>Прогресс</span>
+        <span>{percentage}%</span>
+      </div>
+      <div className={`h-4 rounded-full overflow-hidden ${isAccessible ? 'bg-white border-2 border-white' : 'bg-slate-200'}`}>
+        <div 
+          className="h-full bg-gradient-to-r from-indigo-500 to-emerald-500 rounded-full transition-all duration-500" 
+          style={{ width: `${percentage}%` }} 
+        />
+      </div>
     </div>
   );
 };
 
 export const Card = ({ children, className = '', onClick, hover = true }) => (
-  <div onClick={onClick} className={`bg-white rounded-2xl shadow-sm border border-gray-100 p-6 ${hover ? 'hover:shadow-lg hover:-translate-y-1 transition-all duration-300 cursor-pointer' : ''} ${className}`}>
+  <div 
+    onClick={onClick} 
+    className={`bg-white rounded-2xl shadow-sm border border-gray-100 p-6 ${hover ? 'hover:shadow-lg hover:-translate-y-1 transition-all duration-300 cursor-pointer' : ''} ${className}`}
+  >
     {children}
   </div>
 );
